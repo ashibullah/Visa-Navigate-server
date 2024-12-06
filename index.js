@@ -40,6 +40,7 @@ async function run() {
 
     const myDB = client.db("Visa-Navigator");
     const myColl = myDB.collection("Visa");
+    const myUserColl = myDB.collection("Users");
 
     app.post('/visa', async (req, res) => {
       const visa = req.body;
@@ -47,10 +48,27 @@ async function run() {
       console.log("New visa: ", visa)
     })
 
+    app.post('/users', async (req, res) => {
+      const user = req.body;
+      const query = { uid: user.uid }
+      console.log(query);
+      const userExistence = await myUserColl.findOne(query);
+      if (!userExistence) {
+        const result = await myUserColl.insertOne(user);
+      }
+      // console.log("New user: ", user)
+    })
+
     app.get('/visa', async (req, res) => {
       const result = await myColl.find().toArray();
       res.send(result)
     })
+
+    app.get('/visa/latest', async (req, res) => {
+      const result = await myColl.find().sort({ uploadTime: -1 }).limit(6).toArray();
+      res.send(result)
+    })
+
     app.get('/visas/:id', async (req, res) => {
       const id = req.params.id;
       try {
