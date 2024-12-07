@@ -41,6 +41,7 @@ async function run() {
     const myDB = client.db("Visa-Navigator");
     const myColl = myDB.collection("Visa");
     const myUserColl = myDB.collection("Users");
+    const visaApplicantColl = myDB.collection("VisaApplicants");
 
     app.post('/visa', async (req, res) => {
       const visa = req.body;
@@ -64,6 +65,7 @@ async function run() {
       res.send(result)
     })
 
+
     app.get('/visa/latest', async (req, res) => {
       const result = await myColl.find().sort({ uploadTime: -1 }).limit(6).toArray();
       res.send(result)
@@ -77,6 +79,26 @@ async function run() {
         res.send(result);
       } catch (error) {
         res.status(500).send({ message: 'Error to find visa', error });
+      }
+    })
+
+
+    app.post('/visa/apply', async(req,res)=>{
+      const appliedVisa = req.body;
+      const query = {
+        visaId : appliedVisa.visaId ,
+        email : appliedVisa.email
+      }
+      try{
+        const result = await visaApplicantColl.findOne(query);
+        if(!result) {
+          await visaApplicantColl.insertOne(appliedVisa);
+          res.json({ result: true });
+        }
+        else res.json({ result: false });
+      }
+      catch(err){
+        res.json({ error: err.message });
       }
     })
 
