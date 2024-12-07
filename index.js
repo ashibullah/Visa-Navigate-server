@@ -101,7 +101,27 @@ async function run() {
         res.json({ error: err.message });
       }
     })
+    
+    app.get('/visa/myVisa/:id', async (req,res)=>{
+        const id = req.params.id;
+        const query = { email : id } 
+        const result= await visaApplicantColl.find(query).toArray();
+       
+        const visaPromises = result.map(async(item) => {
+          // console.log(item.visaId);
+          const visaId = item.visaId;
+          const query = { _id: new ObjectId(visaId) };
+          
+          const visaResult = await myColl.findOne(query)
+          // console.log(visaResult);
+          return visaResult;
+          
 
+        })
+        const visaArray = await Promise.all(visaPromises);
+        // console.log(visaArray);
+        res.send(visaArray);
+    })
 
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
