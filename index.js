@@ -89,6 +89,13 @@ async function run() {
       res.send(result);
     })
 
+    app.delete('/visa/delete/:id', async (req,res)=>{
+      const id = req.params.id;
+      const query = { _id : new ObjectId(id) };
+      const result = await visaApplicantColl.deleteOne(query);
+      res.send(result);
+    })
+
 
     app.post('/visa/apply', async(req,res)=>{
       const appliedVisa = req.body;
@@ -118,8 +125,10 @@ async function run() {
           // console.log(item.visaId);
           const visaId = item.visaId;
           const query = { _id: new ObjectId(visaId) };
-          
-          const visaResult = await myColl.findOne(query)
+          const VID = item._id.toString();
+          let visaResult = await myColl.findOne(query)
+          visaResult.applicationId = VID;
+          // console.log(visaResult.applicationId);
           // console.log(visaResult);
           return visaResult;
           
