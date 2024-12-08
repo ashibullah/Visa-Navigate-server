@@ -46,13 +46,13 @@ async function run() {
     app.post('/visa', async (req, res) => {
       const visa = req.body;
       const result = await myColl.insertOne(visa);
-      console.log("New visa: ", visa)
+      // console.log("New visa: ", visa)
     })
 
     app.post('/users', async (req, res) => {
       const user = req.body;
       const query = { uid: user.uid }
-      console.log(query);
+      // console.log(query);
       const userExistence = await myUserColl.findOne(query);
       if (!userExistence) {
         const result = await myUserColl.insertOne(user);
@@ -80,6 +80,13 @@ async function run() {
       } catch (error) {
         res.status(500).send({ message: 'Error to find visa', error });
       }
+    })
+
+    app.get('/visa/addedBy/:id', async (req,res)=>{
+      const id = req.params.id;
+      const query = { addedBy : id };
+      const result = await myColl.find(query).toArray();
+      res.send(result);
     })
 
 
